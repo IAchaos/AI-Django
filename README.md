@@ -1,4 +1,4 @@
 # AI-Django
-Django zero to hero
+Project to learn Django framwork
 
 # Learning Modules
