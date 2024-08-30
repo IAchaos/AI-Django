@@ -19,7 +19,7 @@ def postDetail(request, post_id):
     '''
     
     # method 2
-    post = get_object_or_404(Post, id=post_id)
+    post = get_object_or_404(Post, status = Post.Status.DRAFT, id=post_id)
     return render(request, 'Blog/post/postDetails.html', {'post': post})
     
  
