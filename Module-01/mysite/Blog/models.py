@@ -29,8 +29,16 @@ class Post(models.Model):
     def __str__(self):
         return self.title
     
+    
     def get_absolute_url(self):
-        return reverse("Blog:post_detail", args=[self.id])
+        
+        # reverse() is a helper function that generates URLs using the URL patterns defined in the project's urls.py file.
+        return reverse("Blog:post_detail", args=[
+            self.publish.year,
+            self.publish.month,
+            self.publish.day,
+            self.slug
+        ])
         
     
     
