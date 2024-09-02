@@ -17,4 +17,6 @@
         {{ post.body|truncatewords:30|linebreaks }}
         <hr>
     {% endfor %}
+    
+    {% include 'Blog/pagination.html' %}
 {% endblock %}

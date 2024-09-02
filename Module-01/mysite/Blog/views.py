@@ -2,11 +2,25 @@ from django.shortcuts import render , get_object_or_404
 from django.contrib import messages
 from .models import Post
 from django.http import Http404
-
+from django.core.paginator import Paginator
 
 def postList(request):
-    posts = Post.objects.all()
+    
+    posts_list = Post.objects.all()
+    
+    paginator = Paginator(posts_list, 1)
+    page_number = request.GET.get('page', 1)
+    try:
+        posts = paginator.get_page(page_number)
+    except Exception as e:
+        messages.error(request, f'Error: {e}')
+        posts = paginator.get_page(1)
+   
+    
     return render(request, 'Blog/post/postList.html', {'posts': posts})
+
+
+
 
 
 def postDetail(request, year, month, day, post):
