@@ -3,7 +3,10 @@ from django.contrib import messages
 from .models import Post
 from django.http import Http404
 from django.core.paginator import Paginator
+from django.views.generic import ListView
 
+'''
+# METHOD 1 : Using Django Function Based View
 def postList(request):
     
     posts_list = Post.objects.all()
@@ -18,10 +21,23 @@ def postList(request):
    
     
     return render(request, 'Blog/post/postList.html', {'posts': posts})
+'''
 
+# METHOD 2 : Using Django Generic View (Class Based View)
 
+class PostListView(ListView):
+    model = Post
+    
+    # By default, the ListView class uses the <app_name>/<model_name>_list.html template.
+    # In this case, it would use the Blog/post/post_list.html template.
+    template_name = 'Blog/post/postList.html'
+    paginate_by = 1
+    context_object_name = 'posts'
+    
+    
+    
 
-
+#------------------------------------------------------------------------------------------------
 
 def postDetail(request, year, month, day, post):
     # method 1
