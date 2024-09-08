@@ -4,6 +4,8 @@ from .models import Post
 from django.http import Http404
 from django.core.paginator import Paginator
 from django.views.generic import ListView
+from .forms import EmailPostForm
+from django.core.mail import send_mail
 
 '''
 # METHOD 1 : Using Django Function Based View
@@ -37,7 +39,7 @@ class PostListView(ListView):
     
     
 
-#------------------------------------------------------------------------------------------------
+#------------------------------------- POST DETAILS --------------------------------
 
 def postDetail(request, year, month, day, post):
     # method 1
@@ -60,7 +62,35 @@ def postDetail(request, year, month, day, post):
                              )
         
     return render(request, 'Blog/post/postDetail.html', {'post': post})
+
+
+#------------------------------------ SHARE POST VIE EMAIL ----------------------
+
+def postShare(request, post_id):
+    # retrieve post by id
+    post = get_object_or_404(Post, id=post_id, status=Post.Status.PUBLISHED)
+    sent = False
     
+    # Cheking form if submitted
+    if request.method == 'POST':
+        # Form was submitted
+        form = EmailPostForm(request.POST)
+        if form.is_valid():
+            # Form fields passed validation
+            cd = form.cleaned_data
+            post_url = request.build_absolute_uri(post.get_absolute_url()) 
+            subject = f"{cd['name']} recommends you to read {post.title}"
+            message = f"Read {post.title} at {post_url} \n {cd['name']}\'s comments : {cd['comments']}"
+            
+            # this function is used to send emails from one direction which is the email used in the 
+            # cfg , and sent to any email reciver 
+            send_mail(subject, message, cd['email'],[cd['to']])
+            sent = True
+    else:
+        form = EmailPostForm()
+    
+    return render(request, 'Blog/post/sharePost.html',{'form': form, 'post': post,  'sent': sent })
+        
     
  
 
