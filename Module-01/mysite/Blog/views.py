@@ -1,12 +1,12 @@
 from django.shortcuts import render , get_object_or_404 
 from django.contrib import messages
-from .models import Post
+from .models import Post, Comment
 from django.http import Http404
 from django.core.paginator import Paginator
 from django.views.generic import ListView
-from .forms import EmailPostForm
+from .forms import EmailPostForm , CommentForm
 from django.core.mail import send_mail
-
+from django.views.decorators.http import require_POST
 '''
 # METHOD 1 : Using Django Function Based View
 def postList(request):
@@ -60,8 +60,10 @@ def postDetail(request, year, month, day, post):
                              publish__day = day,
                              slug = post
                              )
-        
-    return render(request, 'Blog/post/postDetail.html', {'post': post})
+    # Retrieving active comments for each post
+    comment = post.comments.filter(active=True)   
+    
+    return render(request, 'Blog/post/postDetail.html', {'post': post, 'comment' : comment})
 
 
 #------------------------------------ SHARE POST VIE EMAIL ----------------------
@@ -91,9 +93,28 @@ def postShare(request, post_id):
     
     return render(request, 'Blog/post/sharePost.html',{'form': form, 'post': post,  'sent': sent })
         
-    
- 
 
+#------------------------------------ POST COMMENT ------------------------------
+
+def postComment(request, post_id):
+    # retrieve post by id
+    post = get_object_or_404(Post, id=post_id, status=Post.Status.PUBLISHED)
+    # new comment will be added to the post
+    comment = None
+    form = CommentForm(data=request.POST)
+    test = "TEST"
+    # Cheking form if submitted
+    if form.is_valid():
+        # Creating comment OBJECT without saving it to DB
+        comment = form.save(commit=False)
+        # Assigning the post to comment
+        comment.post = post
+        # Saving the post to th DB
+        comment.save()
+        
+    return render(request, 'Blog/post/comments.html', {'comment': comment, 'post': post, 'form': form})   
+        
+        
 
 
 
